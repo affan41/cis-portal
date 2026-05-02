@@ -151,6 +151,90 @@ class XeroClient:
         contacts = r.json().get("Contacts", [])
         return contacts[0] if contacts else {}
 
+    def get_all_cis_data(self, contact_id):
+        """Get ALL CIS bills for a subcontractor, grouped by CIS period."""
+        where = f'Contact.ContactID==guid("{contact_id}") AND Type=="ACCPAY" AND Status=="PAID"'
+        r = requests.get(
+            f"{API_BASE}/Invoices",
+            headers=self._headers(),
+            params={"where": where},
+        )
+        if r.status_code != 200:
+            return {"error": f"Xero returned {r.status_code}", "periods": []}
+        try:
+            all_bills = r.json().get("Invoices", [])
+        except Exception:
+            return {"error": "Invalid response from Xero", "periods": []}
+
+        # Group bills by CIS period based on payment date
+        period_map = {}
+        for bill in all_bills:
+            for pmt in bill.get("Payments", []):
+                pmt_date = _parse_xero_date(pmt.get("Date"))
+                if not pmt_date:
+                    continue
+                # Determine CIS period: 6th of month to 5th of next month
+                if pmt_date.day <= 5:
+                    # Falls in previous month's period
+                    if pmt_date.month == 1:
+                        period_month = 12
+                        period_year = pmt_date.year - 1
+                    else:
+                        period_month = pmt_date.month - 1
+                        period_year = pmt_date.year
+                else:
+                    period_month = pmt_date.month
+                    period_year = pmt_date.year
+
+                key = f"{period_year}-{period_month:02d}"
+                if key not in period_map:
+                    period_map[key] = {
+                        "month": period_month,
+                        "year": period_year,
+                        "invoices": [],
+                        "total_gross": 0,
+                        "total_cis": 0,
+                        "total_paid": 0,
+                    }
+                gross = bill.get("SubTotal", 0) or 0
+                cis = bill.get("CISDeduction", 0) or 0
+                period_map[key]["invoices"].append({
+                    "reference": bill.get("InvoiceNumber", "") or "None",
+                    "payment_date": pmt_date.strftime("%d %B %Y"),
+                    "gross": gross,
+                    "cis_deduction": cis,
+                    "paid": gross - cis,
+                })
+                period_map[key]["total_gross"] += gross
+                period_map[key]["total_cis"] += cis
+                period_map[key]["total_paid"] += gross - cis
+                break  # Only count once per bill
+
+        # Sort by date descending
+        MONTH_NAMES = ["", "January", "February", "March", "April", "May", "June",
+                       "July", "August", "September", "October", "November", "December"]
+        periods = []
+        for key in sorted(period_map.keys(), reverse=True):
+            p = period_map[key]
+            m = p["month"]
+            y = p["year"]
+            if m == 12:
+                label = f"6 December {y} to 5 January {y + 1}"
+            else:
+                label = f"6 {MONTH_NAMES[m]} to 5 {MONTH_NAMES[m + 1]} {y}"
+            periods.append({
+                "key": key,
+                "month": m,
+                "year": y,
+                "period_label": label,
+                "total_gross": p["total_gross"],
+                "total_cis": p["total_cis"],
+                "total_paid": p["total_paid"],
+                "invoice_count": len(p["invoices"]),
+            })
+
+        return {"periods": periods}
+
     def get_cis_data(self, contact_id, period_start, period_end):
         """
         Get CIS statement data for a subcontractor in a specific CIS period.

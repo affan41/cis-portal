@@ -82,6 +82,24 @@ def search():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/all-periods")
+def all_periods():
+    contact_id = request.args.get("contact_id")
+    if not contact_id:
+        return jsonify({"error": "Missing contact_id"}), 400
+    try:
+        contact = xero.get_contact(contact_id)
+        result = xero.get_all_cis_data(contact_id)
+        if result.get("error"):
+            return jsonify({"contact": {"name": contact.get("Name", "")}, "error": result["error"]})
+        return jsonify({
+            "contact": {"name": contact.get("Name", ""), "utr": contact.get("TaxNumber", "")},
+            "periods": result["periods"],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/statement")
 def statement():
     contact_id = request.args.get("contact_id")

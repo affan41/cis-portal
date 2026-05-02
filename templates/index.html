@@ -132,7 +132,28 @@
       <select id="year"></select>
     </div>
     <button class="btn-primary" id="get-btn" disabled>Get CIS Statement</button>
+    <button class="btn-primary" id="all-btn" disabled style="background:#1a1a2e; margin-top:8px;">View All Periods</button>
     <div id="status"></div>
+  </div>
+
+  <!-- All Periods -->
+  <div class="card" id="all-card" style="display:none">
+    <div class="step-label">All CIS Periods</div>
+    <h2 id="all-title"></h2>
+    <table id="all-table" style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Gross (excl VAT)</th>
+          <th>CIS Deducted</th>
+          <th>Net Paid</th>
+          <th>Bills</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="all-body"></tbody>
+      <tfoot id="all-foot"></tfoot>
+    </table>
   </div>
 
   <!-- Result -->
@@ -177,6 +198,7 @@
   const suggestionsEl = document.getElementById("suggestions");
   const selectedEl = document.getElementById("selected-contact");
   const getBtn = document.getElementById("get-btn");
+  const allBtn = document.getElementById("all-btn");
   const statusEl = document.getElementById("status");
 
   let debounce;
@@ -206,6 +228,7 @@
     selectedEl.textContent = "✓ Selected: " + el.dataset.name;
     selectedEl.style.display = "block";
     getBtn.disabled = false;
+    allBtn.disabled = false;
   });
 
   document.addEventListener("click", e => {
@@ -241,6 +264,70 @@
         statusEl.className = "err";
       });
   });
+
+  // All Periods button
+  allBtn.addEventListener("click", () => {
+    if (!selectedContact) return;
+    statusEl.textContent = "Loading all periods…";
+    statusEl.className = "";
+    allBtn.disabled = true;
+
+    fetch(`/all-periods?contact_id=${selectedContact.id}`)
+      .then(r => r.json())
+      .then(data => {
+        allBtn.disabled = false;
+        statusEl.textContent = "";
+        if (data.error && !data.periods) {
+          statusEl.textContent = "Error: " + JSON.stringify(data.error);
+          statusEl.className = "err";
+          return;
+        }
+        renderAllPeriods(data);
+      })
+      .catch(() => {
+        allBtn.disabled = false;
+        statusEl.textContent = "Request failed.";
+        statusEl.className = "err";
+      });
+  });
+
+  function renderAllPeriods(data) {
+    const card = document.getElementById("all-card");
+    card.style.display = "block";
+    document.getElementById("result-card").style.display = "none";
+    card.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("all-title").textContent = data.contact?.name || selectedContact.name;
+
+    const periods = data.periods || [];
+    if (!periods.length) {
+      document.getElementById("all-body").innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#aaa">No CIS data found.</td></tr>';
+      document.getElementById("all-foot").innerHTML = "";
+      return;
+    }
+
+    let grandGross = 0, grandCIS = 0, grandPaid = 0;
+    document.getElementById("all-body").innerHTML = periods.map(p => {
+      grandGross += p.total_gross;
+      grandCIS += p.total_cis;
+      grandPaid += p.total_paid;
+      return `<tr>
+        <td style="padding:10px 12px">${p.period_label}</td>
+        <td class="num" style="padding:10px 12px">${fmt(p.total_gross)}</td>
+        <td class="num" style="padding:10px 12px;color:#dc2626">${fmt(p.total_cis)}</td>
+        <td class="num" style="padding:10px 12px;color:#16a34a">${fmt(p.total_paid)}</td>
+        <td style="padding:10px 12px;text-align:center">${p.invoice_count}</td>
+        <td style="padding:10px 12px"><a href="/download?contact_id=${selectedContact.id}&month=${p.month}&year=${p.year}" class="btn-download" style="padding:6px 14px;font-size:0.8rem;display:inline-block;width:auto">⬇ PDF</a></td>
+      </tr>`;
+    }).join("");
+
+    document.getElementById("all-foot").innerHTML = `<tr style="background:#1a1a2e;color:white;font-weight:600">
+      <td style="padding:10px 12px">TOTAL (${periods.length} periods)</td>
+      <td class="num" style="padding:10px 12px">${fmt(grandGross)}</td>
+      <td class="num" style="padding:10px 12px">${fmt(grandCIS)}</td>
+      <td class="num" style="padding:10px 12px">${fmt(grandPaid)}</td>
+      <td></td><td></td>
+    </tr>`;
+  }
 
   const monthNames = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
 
