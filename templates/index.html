@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CIS Portal — Instrcut Construction Group</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f4f6f9; color: #1a1a2e; }
+    header { background: #1a1a2e; color: white; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.1rem; font-weight: 600; }
+    header p { font-size: 0.82rem; opacity: 0.55; margin-top: 2px; }
+    header a { color: rgba(255,255,255,0.5); font-size: 0.8rem; text-decoration: none; }
+    header a:hover { color: white; }
+    .container { max-width: 780px; margin: 36px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 12px; padding: 28px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
+    /* Step labels */
+    .step-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4f46e5; margin-bottom: 8px; }
+    .card h2 { font-size: 1rem; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; }
+
+    /* Search */
+    .search-wrap { position: relative; }
+    .search-wrap input {
+      width: 100%; padding: 13px 44px 13px 16px; font-size: 1rem;
+      border: 2px solid #e0e0e0; border-radius: 8px; outline: none; transition: border 0.2s;
+    }
+    .search-wrap input:focus { border-color: #4f46e5; }
+    .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); opacity: 0.35; font-size: 1rem; }
+    #suggestions { border: 1px solid #eee; border-radius: 8px; margin-top: 6px; overflow: hidden; display: none; }
+    .suggestion {
+      padding: 12px 16px; cursor: pointer; font-size: 0.94rem;
+      border-bottom: 1px solid #f5f5f5; transition: background 0.1s;
+    }
+    .suggestion:last-child { border-bottom: none; }
+    .suggestion:hover { background: #f0efff; }
+    #selected-contact { margin-top: 10px; padding: 10px 14px; background: #eef2ff; border-radius: 6px; font-size: 0.9rem; color: #4f46e5; display: none; }
+
+    /* Period */
+    .period-row { display: flex; gap: 12px; }
+    .period-row select {
+      flex: 1; padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 8px;
+      font-size: 0.95rem; outline: none; background: white; cursor: pointer;
+    }
+    .period-row select:focus { border-color: #4f46e5; }
+
+    /* Button */
+    .btn-primary {
+      width: 100%; padding: 14px; background: #4f46e5; color: white;
+      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; margin-top: 16px; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-primary:disabled { background: #c7c3f5; cursor: not-allowed; }
+
+    /* Result */
+    #result-card { display: none; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .summary-box { background: #f8f8ff; border-radius: 8px; padding: 16px; }
+    .summary-box .lbl { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .summary-box .val { font-size: 1.25rem; font-weight: 700; color: #1a1a2e; }
+    .summary-box.highlight { background: #eef2ff; }
+    .summary-box.highlight .val { color: #4f46e5; }
+    .summary-box.deducted { background: #fef2f2; }
+    .summary-box.deducted .val { color: #dc2626; }
+    .summary-box.net { background: #f0fdf4; }
+    .summary-box.net .val { color: #16a34a; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 20px; }
+    th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; font-weight: 500; font-size: 0.82rem; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+    tr:nth-child(even) td { background: #fafafa; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .btn-download {
+      display: block; width: 100%; padding: 14px; text-align: center;
+      background: #16a34a; color: white; border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-download:hover { background: #15803d; }
+
+    #status { margin-top: 12px; font-size: 0.88rem; text-align: center; color: #888; min-height: 20px; }
+    .err { color: #dc2626 !important; }
+
+    #no-data { text-align: center; padding: 28px; color: #aaa; font-size: 0.93rem; display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Instrcut Construction Group Ltd</h1>
+    <p>CIS Statement Portal · Connected to {{ org }}</p>
+  </div>
+  <a href="/disconnect">Disconnect Xero</a>
+</header>
+
+<div class="container">
+
+  <!-- Step 1: Search -->
+  <div class="card">
+    <div class="step-label">Step 1</div>
+    <h2>Search Subcontractor</h2>
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Start typing a name…" autocomplete="off"/>
+      <span class="search-icon">🔍</span>
+    </div>
+    <div id="suggestions"></div>
+    <div id="selected-contact"></div>
+  </div>
+
+  <!-- Step 2: Period -->
+  <div class="card">
+    <div class="step-label">Step 2</div>
+    <h2>Select CIS Period</h2>
+    <div class="period-row">
+      <select id="month">
+        <option value="01">January</option>
+        <option value="02">February</option>
+        <option value="03">March</option>
+        <option value="04">April</option>
+        <option value="05">May</option>
+        <option value="06">June</option>
+        <option value="07">July</option>
+        <option value="08">August</option>
+        <option value="09">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+      </select>
+      <select id="year"></select>
+    </div>
+    <button class="btn-primary" id="get-btn" disabled>Get CIS Statement</button>
+    <div id="status"></div>
+  </div>
+
+  <!-- Result -->
+  <div class="card" id="result-card">
+    <div class="step-label">CIS Statement</div>
+    <h2 id="result-title"></h2>
+    <div class="summary-grid" id="summary-grid"></div>
+    <table id="detail-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Gross</th>
+          <th>Materials</th>
+          <th>Taxable</th>
+          <th>CIS Deducted</th>
+          <th>Net Payment</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div id="no-data"></div>
+    <a href="#" class="btn-download" id="download-btn">⬇ Download PDF Statement</a>
+  </div>
+
+</div>
+
+<script>
+  // Populate year dropdown (last 3 tax years)
+  const yearSel = document.getElementById("year");
+  const now = new Date();
+  for (let y = now.getFullYear(); y >= now.getFullYear() - 3; y--) {
+    const o = document.createElement("option");
+    o.value = y; o.textContent = y;
+    yearSel.appendChild(o);
+  }
+  // Default month to current
+  document.getElementById("month").value = String(now.getMonth() + 1).padStart(2, "0");
+
+  let selectedContact = null;
+
+  const searchEl = document.getElementById("search");
+  const suggestionsEl = document.getElementById("suggestions");
+  const selectedEl = document.getElementById("selected-contact");
+  const getBtn = document.getElementById("get-btn");
+  const statusEl = document.getElementById("status");
+
+  let debounce;
+  searchEl.addEventListener("input", () => {
+    clearTimeout(debounce);
+    const q = searchEl.value.trim();
+    if (q.length < 2) { suggestionsEl.style.display = "none"; return; }
+    debounce = setTimeout(() => {
+      fetch("/search?q=" + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(data => {
+          if (!data.length) { suggestionsEl.style.display = "none"; return; }
+          suggestionsEl.innerHTML = data.map(c =>
+            `<div class="suggestion" data-id="${c.id}" data-name="${c.name}">${c.name}</div>`
+          ).join("");
+          suggestionsEl.style.display = "block";
+        });
+    }, 300);
+  });
+
+  suggestionsEl.addEventListener("click", e => {
+    const el = e.target.closest(".suggestion");
+    if (!el) return;
+    selectedContact = { id: el.dataset.id, name: el.dataset.name };
+    searchEl.value = el.dataset.name;
+    suggestionsEl.style.display = "none";
+    selectedEl.textContent = "✓ Selected: " + el.dataset.name;
+    selectedEl.style.display = "block";
+    getBtn.disabled = false;
+  });
+
+  document.addEventListener("click", e => {
+    if (!suggestionsEl.contains(e.target) && e.target !== searchEl) {
+      suggestionsEl.style.display = "none";
+    }
+  });
+
+  getBtn.addEventListener("click", () => {
+    if (!selectedContact) return;
+    const month = document.getElementById("month").value;
+    const year = document.getElementById("year").value;
+
+    statusEl.textContent = "Fetching from Xero…";
+    statusEl.className = "";
+    getBtn.disabled = true;
+
+    fetch(`/statement?contact_id=${selectedContact.id}&month=${month}&year=${year}`)
+      .then(r => r.json())
+      .then(data => {
+        getBtn.disabled = false;
+        if (data.error && !data.invoices) {
+          statusEl.textContent = "Error: " + JSON.stringify(data.error);
+          statusEl.className = "err";
+          return;
+        }
+        statusEl.textContent = "";
+        renderResult(data, month, year);
+      })
+      .catch(e => {
+        getBtn.disabled = false;
+        statusEl.textContent = "Request failed. Is the app running?";
+        statusEl.className = "err";
+      });
+  });
+
+  const monthNames = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  function fmt(n) { return "£" + (n || 0).toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+  function renderResult(data, month, year) {
+    const card = document.getElementById("result-card");
+    const noData = document.getElementById("no-data");
+    const detailTable = document.getElementById("detail-table");
+    card.style.display = "block";
+    card.scrollIntoView({ behavior: "smooth" });
+
+    const periodLabel = data.period_label || `${monthNames[parseInt(month)]} ${year}`;
+    document.getElementById("result-title").textContent =
+      (data.contact?.name || selectedContact.name) + " — " + periodLabel;
+
+    const dl = document.getElementById("download-btn");
+    dl.href = `/download?contact_id=${selectedContact.id}&month=${month}&year=${year}`;
+
+    const invoices = data.invoices || [];
+    if (!invoices.length) {
+      document.getElementById("summary-grid").innerHTML = "";
+      detailTable.style.display = "none";
+      noData.style.display = "block";
+      noData.innerHTML = `No CIS payments found for this subcontractor in this period.`;
+      return;
+    }
+
+    noData.style.display = "none";
+    const t = data.totals || {};
+
+    document.getElementById("summary-grid").innerHTML = `
+      <div class="summary-box"><div class="lbl">Gross Paid (excl VAT)</div><div class="val">${fmt(t.gross)}</div></div>
+      <div class="summary-box"><div class="lbl">Liable to Deduction</div><div class="val">${fmt(t.liable)}</div></div>
+      <div class="summary-box deducted"><div class="lbl">CIS Deducted</div><div class="val">${fmt(t.cis_deduction)}</div></div>
+      <div class="summary-box net"><div class="lbl">Paid (A - B)</div><div class="val">${fmt(t.paid)}</div></div>
+    `;
+
+    const tbody = document.getElementById("table-body");
+    tbody.innerHTML = invoices.map(row => {
+      return `<tr>
+        <td>${row.payment_date}</td>
+        <td class="num">${fmt(row.gross)}</td>
+        <td class="num">${fmt(row.materials)}</td>
+        <td class="num">${fmt(row.non_cis)}</td>
+        <td class="num" style="color:#dc2626">${fmt(row.cis_deduction)}</td>
+        <td class="num" style="color:#16a34a">${fmt(row.paid)}</td>
+      </tr>`;
+    }).join("");
+    detailTable.style.display = "table";
+  }
+</script>
+</body>
+</html>

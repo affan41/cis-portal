@@ -1,0 +1,8 @@
+.env
+.tokens.json
+.pkce.json
+__pycache__/
+*.pyc
+uploads/
+.claude/
+start.command
