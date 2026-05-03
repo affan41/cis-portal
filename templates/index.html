@@ -389,6 +389,32 @@
     window._lastStatement = { data, month, year };
   }
 
+  async function sharePDF(url, filename, name, period, gross, cis, paid) {
+    try {
+      // Download the PDF
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const file = new File([blob], filename, { type: "application/pdf" });
+
+      // Try native share (works on mobile — sends actual file via WhatsApp)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `CIS Statement - ${name}`,
+          text: `CIS Statement for ${name}\nPeriod: ${period}\nGross: ${fmt(gross)} | CIS: ${fmt(cis)} | Paid: ${fmt(paid)}`,
+        });
+        return;
+      }
+
+      // Fallback for desktop — open WhatsApp Web with download link
+      const downloadUrl = window.location.origin + url;
+      const msg = `Hi ${name},\n\nPlease find your CIS Payment Deduction Statement:\n\n📋 Period: ${period}\n💷 Gross Paid: ${fmt(gross)}\n🔻 CIS Deducted: ${fmt(cis)}\n✅ Net Paid: ${fmt(paid)}\n\nDownload your statement here:\n${downloadUrl}\n\nFrom Instruct Construction Group LTD`;
+      window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+    } catch (err) {
+      if (err.name !== "AbortError") alert("Share failed: " + err.message);
+    }
+  }
+
   function shareWhatsApp(e) {
     e.preventDefault();
     const d = window._lastStatement;
@@ -396,20 +422,16 @@
     const t = d.data.totals || {};
     const name = d.data.contact?.name || selectedContact.name;
     const period = d.data.period_label || "";
-    const downloadUrl = window.location.origin + document.getElementById("download-btn").getAttribute("href");
-
-    const msg = `Hi ${name},\n\nPlease find your CIS Payment Deduction Statement:\n\n📋 Period: ${period}\n💷 Gross Paid: ${fmt(t.gross)}\n🔻 CIS Deducted: ${fmt(t.cis_deduction)}\n✅ Net Paid: ${fmt(t.paid)}\n\nDownload your statement here:\n${downloadUrl}\n\nFrom Instruct Construction Group LTD`;
-
-    window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+    const url = document.getElementById("download-btn").getAttribute("href");
+    const filename = `CIS_${name.replace(/\s/g,"_")}_${period.replace(/\s/g,"_")}.pdf`;
+    sharePDF(url, filename, name, period, t.gross, t.cis_deduction, t.paid);
   }
 
   function shareWhatsAppPeriod(e, contactId, month, year, periodLabel, name, gross, cis, paid) {
     e.preventDefault();
-    const downloadUrl = window.location.origin + `/download?contact_id=${contactId}&month=${month}&year=${year}`;
-
-    const msg = `Hi ${name},\n\nPlease find your CIS Payment Deduction Statement:\n\n📋 Period: ${periodLabel}\n💷 Gross Paid: ${fmt(gross)}\n🔻 CIS Deducted: ${fmt(cis)}\n✅ Net Paid: ${fmt(paid)}\n\nDownload your statement here:\n${downloadUrl}\n\nFrom Instruct Construction Group LTD`;
-
-    window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+    const url = `/download?contact_id=${contactId}&month=${month}&year=${year}`;
+    const filename = `CIS_${name.replace(/\s/g,"_")}_${periodLabel.replace(/\s/g,"_")}.pdf`;
+    sharePDF(url, filename, name, periodLabel, gross, cis, paid);
   }
 </script>
 </body>
