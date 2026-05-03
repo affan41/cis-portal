@@ -3,108 +3,217 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CIS Portal — Instrcut Construction Group</title>
+  <title>CIS Portal — Instruct Construction Group</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f4f6f9; color: #1a1a2e; }
-    header { background: #1a1a2e; color: white; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
-    header h1 { font-size: 1.1rem; font-weight: 600; }
-    header p { font-size: 0.82rem; opacity: 0.55; margin-top: 2px; }
-    header a { color: rgba(255,255,255,0.5); font-size: 0.8rem; text-decoration: none; }
-    header a:hover { color: white; }
-    .container { max-width: 780px; margin: 36px auto; padding: 0 20px; }
-    .card { background: white; border-radius: 12px; padding: 28px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Inter", -apple-system, sans-serif; background: #f5f5f5; color: #111; }
 
-    /* Step labels */
-    .step-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4f46e5; margin-bottom: 8px; }
-    .card h2 { font-size: 1rem; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; }
+    /* ── Header ── */
+    header {
+      background: #1c1c1c;
+      color: white;
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid #D4463E;
+    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .header-logo {
+      width: 34px; height: 34px; background: #D4463E;
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem; color: white; letter-spacing: -0.5px; flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.2px; }
+    .header-text p { font-size: 0.73rem; color: rgba(255,255,255,0.45); margin-top: 1px; }
+    header a {
+      color: rgba(255,255,255,0.45); font-size: 0.78rem; text-decoration: none;
+      padding: 6px 12px; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+      transition: all 0.15s;
+    }
+    header a:hover { color: white; border-color: rgba(255,255,255,0.4); }
 
-    /* Search */
+    /* ── Layout ── */
+    .container { max-width: 800px; margin: 32px auto; padding: 0 20px 60px; }
+
+    /* ── Cards ── */
+    .card {
+      background: white; border-radius: 10px; padding: 28px;
+      margin-bottom: 20px; border: 1px solid #e8e8e8;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .step-badge {
+      width: 26px; height: 26px; background: #D4463E; color: white;
+      border-radius: 50%; font-size: 0.72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .card-header h2 { font-size: 0.95rem; font-weight: 600; color: #111; }
+
+    /* ── Search ── */
     .search-wrap { position: relative; }
     .search-wrap input {
-      width: 100%; padding: 13px 44px 13px 16px; font-size: 1rem;
-      border: 2px solid #e0e0e0; border-radius: 8px; outline: none; transition: border 0.2s;
+      width: 100%; padding: 12px 44px 12px 16px; font-size: 0.95rem; font-family: inherit;
+      border: 1.5px solid #ddd; border-radius: 8px; outline: none;
+      transition: border-color 0.15s; color: #111; background: #fafafa;
     }
-    .search-wrap input:focus { border-color: #4f46e5; }
-    .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); opacity: 0.35; font-size: 1rem; }
-    #suggestions { border: 1px solid #eee; border-radius: 8px; margin-top: 6px; overflow: hidden; display: none; }
+    .search-wrap input:focus { border-color: #D4463E; background: white; }
+    .search-wrap input::placeholder { color: #aaa; }
+    .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 0.9rem; pointer-events: none; }
+
+    #suggestions {
+      border: 1.5px solid #e5e5e5; border-top: none;
+      border-radius: 0 0 8px 8px; overflow: hidden; display: none;
+      background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
     .suggestion {
-      padding: 12px 16px; cursor: pointer; font-size: 0.94rem;
-      border-bottom: 1px solid #f5f5f5; transition: background 0.1s;
+      padding: 11px 16px; cursor: pointer; font-size: 0.9rem; color: #222;
+      border-bottom: 1px solid #f0f0f0; transition: background 0.1s;
     }
     .suggestion:last-child { border-bottom: none; }
-    .suggestion:hover { background: #f0efff; }
-    #selected-contact { margin-top: 10px; padding: 10px 14px; background: #eef2ff; border-radius: 6px; font-size: 0.9rem; color: #4f46e5; display: none; }
+    .suggestion:hover { background: #fff5f5; color: #D4463E; }
 
-    /* Period */
-    .period-row { display: flex; gap: 12px; }
+    #selected-contact {
+      margin-top: 10px; padding: 9px 14px;
+      background: #fff5f5; border: 1px solid #ffd5d3;
+      border-radius: 7px; font-size: 0.87rem; color: #D4463E;
+      display: none; font-weight: 500;
+    }
+
+    /* ── Period row ── */
+    .period-row { display: flex; gap: 10px; }
     .period-row select {
-      flex: 1; padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 8px;
-      font-size: 0.95rem; outline: none; background: white; cursor: pointer;
+      flex: 1; padding: 11px 14px; border: 1.5px solid #ddd; border-radius: 8px;
+      font-size: 0.9rem; font-family: inherit; outline: none;
+      background: #fafafa; color: #111; cursor: pointer; transition: border-color 0.15s;
     }
-    .period-row select:focus { border-color: #4f46e5; }
+    .period-row select:focus { border-color: #D4463E; background: white; }
 
-    /* Button */
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
     .btn-primary {
-      width: 100%; padding: 14px; background: #4f46e5; color: white;
-      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
-      cursor: pointer; margin-top: 16px; transition: background 0.2s;
+      flex: 1; padding: 13px 16px; background: #D4463E; color: white;
+      border: none; border-radius: 8px; font-size: 0.92rem; font-weight: 600;
+      font-family: inherit; cursor: pointer; transition: background 0.15s;
     }
-    .btn-primary:hover { background: #4338ca; }
-    .btn-primary:disabled { background: #c7c3f5; cursor: not-allowed; }
+    .btn-primary:hover { background: #bf3c35; }
+    .btn-primary:disabled { background: #e8a09c; cursor: not-allowed; }
+    .btn-secondary {
+      flex: 1; padding: 13px 16px; background: #1c1c1c; color: white;
+      border: none; border-radius: 8px; font-size: 0.92rem; font-weight: 600;
+      font-family: inherit; cursor: pointer; transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: #333; }
+    .btn-secondary:disabled { background: #999; cursor: not-allowed; }
 
-    /* Result */
+    #status { margin-top: 12px; font-size: 0.85rem; text-align: center; color: #999; min-height: 18px; }
+    .err { color: #D4463E !important; }
+
+    /* ── Summary grid ── */
     #result-card { display: none; }
-    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .summary-box { background: #f8f8ff; border-radius: 8px; padding: 16px; }
-    .summary-box .lbl { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-    .summary-box .val { font-size: 1.25rem; font-weight: 700; color: #1a1a2e; }
-    .summary-box.highlight { background: #eef2ff; }
-    .summary-box.highlight .val { color: #4f46e5; }
-    .summary-box.deducted { background: #fef2f2; }
-    .summary-box.deducted .val { color: #dc2626; }
-    .summary-box.net { background: #f0fdf4; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+    .summary-box { background: #fafafa; border: 1px solid #efefef; border-radius: 8px; padding: 16px 18px; }
+    .summary-box .lbl { font-size: 0.72rem; color: #999; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; font-weight: 500; }
+    .summary-box .val { font-size: 1.35rem; font-weight: 700; color: #111; }
+    .summary-box.deducted { background: #fff5f5; border-color: #fdd; }
+    .summary-box.deducted .val { color: #D4463E; }
+    .summary-box.net { background: #f0fdf4; border-color: #c6f0d4; }
     .summary-box.net .val { color: #16a34a; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 20px; }
-    th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; font-weight: 500; font-size: 0.82rem; }
-    td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
-    tr:nth-child(even) td { background: #fafafa; }
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    thead th {
+      background: #1c1c1c; color: white; padding: 10px 14px;
+      text-align: left; font-weight: 500; font-size: 0.78rem;
+      letter-spacing: 0.03em; white-space: nowrap;
+    }
+    thead th:first-child { border-radius: 6px 0 0 0; }
+    thead th:last-child { border-radius: 0 6px 0 0; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
     td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
-    .btn-download {
-      display: block; width: 100%; padding: 14px; text-align: center;
-      background: #16a34a; color: white; border: none; border-radius: 8px;
-      font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none;
-      transition: background 0.2s;
+    /* ── Action buttons ── */
+    .action-row { display: flex; gap: 10px; }
+    .btn-download, .btn-whatsapp {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 16px; border: none; border-radius: 8px;
+      font-size: 0.92rem; font-weight: 600; font-family: inherit;
+      cursor: pointer; text-decoration: none; transition: background 0.15s;
     }
-    .btn-download:hover { background: #15803d; }
+    .btn-download { background: #111; color: white; }
+    .btn-download:hover { background: #333; }
+    .btn-whatsapp { background: #25D366; color: white; }
+    .btn-whatsapp:hover { background: #1eb858; }
 
-    #status { margin-top: 12px; font-size: 0.88rem; text-align: center; color: #888; min-height: 20px; }
-    .err { color: #dc2626 !important; }
+    /* ── All periods ── */
+    #all-card { display: none; }
+    .all-table-wrap { overflow-x: auto; }
+    #all-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    #all-table thead th {
+      background: #1c1c1c; color: white; padding: 10px 14px;
+      text-align: left; font-weight: 500; font-size: 0.78rem; white-space: nowrap;
+    }
+    #all-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
+    #all-table tbody tr:last-child td { border-bottom: none; }
+    #all-table tbody tr:hover td { background: #fafafa; }
+    #all-table tfoot td {
+      padding: 11px 14px; background: #D4463E; color: white;
+      font-weight: 700; font-size: 0.88rem;
+    }
 
-    #no-data { text-align: center; padding: 28px; color: #aaa; font-size: 0.93rem; display: none; }
+    .pill-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.76rem;
+      font-weight: 600; text-decoration: none; cursor: pointer;
+      border: none; font-family: inherit; transition: opacity 0.15s;
+    }
+    .pill-btn:hover { opacity: 0.85; }
+    .pill-pdf { background: #1c1c1c; color: white; }
+    .pill-wa { background: #25D366; color: white; margin-left: 6px; }
+
+    #no-data { text-align: center; padding: 32px; color: #bbb; font-size: 0.9rem; display: none; }
+
+    @media (max-width: 560px) {
+      header { padding: 0 16px; }
+      .container { margin: 20px auto; padding: 0 12px 40px; }
+      .card { padding: 20px; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .btn-row { flex-direction: column; }
+      .action-row { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <h1>Instrcut Construction Group Ltd</h1>
-    <p>CIS Statement Portal · Connected to {{ org }}</p>
+  <div class="header-brand">
+    <div class="header-logo">IC</div>
+    <div class="header-text">
+      <h1>Instruct Construction Group</h1>
+      <p>CIS Statement Portal · {{ org }}</p>
+    </div>
   </div>
-  <a href="/disconnect">Disconnect Xero</a>
+  <a href="/disconnect">Disconnect</a>
 </header>
 
 <div class="container">
 
   <!-- Step 1: Search -->
   <div class="card">
-    <div class="step-label">Step 1</div>
-    <h2>Search Subcontractor</h2>
+    <div class="card-header">
+      <div class="step-badge">1</div>
+      <h2>Search Subcontractor</h2>
+    </div>
     <div class="search-wrap">
-      <input type="text" id="search" placeholder="Start typing a name…" autocomplete="off"/>
-      <span class="search-icon">🔍</span>
+      <input type="text" id="search" placeholder="Type a name to search…" autocomplete="off"/>
+      <span class="search-icon">⌕</span>
     </div>
     <div id="suggestions"></div>
     <div id="selected-contact"></div>
@@ -112,8 +221,10 @@
 
   <!-- Step 2: Period -->
   <div class="card">
-    <div class="step-label">Step 2</div>
-    <h2>Select CIS Period</h2>
+    <div class="card-header">
+      <div class="step-badge">2</div>
+      <h2>Select CIS Period</h2>
+    </div>
     <div class="period-row">
       <select id="month">
         <option value="01">January</option>
@@ -131,60 +242,77 @@
       </select>
       <select id="year"></select>
     </div>
-    <button class="btn-primary" id="get-btn" disabled>Get CIS Statement</button>
-    <button class="btn-primary" id="all-btn" disabled style="background:#1a1a2e; margin-top:8px;">View All Periods</button>
+    <div class="btn-row">
+      <button class="btn-primary" id="get-btn" disabled>Get Statement</button>
+      <button class="btn-secondary" id="all-btn" disabled>All Periods</button>
+    </div>
     <div id="status"></div>
   </div>
 
   <!-- All Periods -->
-  <div class="card" id="all-card" style="display:none">
-    <div class="step-label">All CIS Periods</div>
-    <h2 id="all-title"></h2>
-    <table id="all-table" style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-      <thead>
-        <tr>
-          <th>Period</th>
-          <th>Gross (excl VAT)</th>
-          <th>CIS Deducted</th>
-          <th>Net Paid</th>
-          <th>Bills</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="all-body"></tbody>
-      <tfoot id="all-foot"></tfoot>
-    </table>
+  <div class="card" id="all-card">
+    <div class="card-header">
+      <div class="step-badge" style="background:#1c1c1c">≡</div>
+      <h2 id="all-title"></h2>
+    </div>
+    <div class="all-table-wrap">
+      <table id="all-table">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Gross (excl VAT)</th>
+            <th>CIS Deducted</th>
+            <th>Net Paid</th>
+            <th>Bills</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="all-body"></tbody>
+        <tfoot id="all-foot"></tfoot>
+      </table>
+    </div>
   </div>
 
   <!-- Result -->
   <div class="card" id="result-card">
-    <div class="step-label">CIS Statement</div>
-    <h2 id="result-title"></h2>
+    <div class="card-header">
+      <div class="step-badge" style="background:#1c1c1c">✓</div>
+      <h2 id="result-title"></h2>
+    </div>
     <div class="summary-grid" id="summary-grid"></div>
-    <table id="detail-table" style="display:none">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Gross</th>
-          <th>Materials</th>
-          <th>Taxable</th>
-          <th>CIS Deducted</th>
-          <th>Net Payment</th>
-        </tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
+    <div class="table-wrap">
+      <table id="detail-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Ref</th>
+            <th>Gross</th>
+            <th>Materials</th>
+            <th>Taxable</th>
+            <th>CIS Deducted</th>
+            <th>Net Payment</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
     <div id="no-data"></div>
-    <div style="display:flex;gap:10px">
-      <a href="#" class="btn-download" id="download-btn" style="flex:1">⬇ Download PDF</a>
-      <a href="#" class="btn-download" id="whatsapp-btn" style="flex:1;background:#25D366" onclick="shareWhatsApp(event)">📱 Send via WhatsApp</a>
+    <div class="action-row">
+      <a href="#" class="btn-download" id="download-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF
+      </a>
+      <a href="#" class="btn-whatsapp" id="whatsapp-btn" onclick="shareWhatsApp(event)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        Send via WhatsApp
+      </a>
     </div>
   </div>
 
 </div>
 
 <script>
-  // Populate year dropdown (last 3 tax years)
+  // Populate year dropdown
   const yearSel = document.getElementById("year");
   const now = new Date();
   for (let y = now.getFullYear(); y >= now.getFullYear() - 3; y--) {
@@ -192,7 +320,6 @@
     o.value = y; o.textContent = y;
     yearSel.appendChild(o);
   }
-  // Default month to current
   document.getElementById("month").value = String(now.getMonth() + 1).padStart(2, "0");
 
   let selectedContact = null;
@@ -228,23 +355,21 @@
     selectedContact = { id: el.dataset.id, name: el.dataset.name };
     searchEl.value = el.dataset.name;
     suggestionsEl.style.display = "none";
-    selectedEl.textContent = "✓ Selected: " + el.dataset.name;
+    selectedEl.textContent = "✓  " + el.dataset.name + " selected";
     selectedEl.style.display = "block";
     getBtn.disabled = false;
     allBtn.disabled = false;
   });
 
   document.addEventListener("click", e => {
-    if (!suggestionsEl.contains(e.target) && e.target !== searchEl) {
+    if (!suggestionsEl.contains(e.target) && e.target !== searchEl)
       suggestionsEl.style.display = "none";
-    }
   });
 
   getBtn.addEventListener("click", () => {
     if (!selectedContact) return;
     const month = document.getElementById("month").value;
     const year = document.getElementById("year").value;
-
     statusEl.textContent = "Fetching from Xero…";
     statusEl.className = "";
     getBtn.disabled = true;
@@ -261,14 +386,13 @@
         statusEl.textContent = "";
         renderResult(data, month, year);
       })
-      .catch(e => {
+      .catch(() => {
         getBtn.disabled = false;
-        statusEl.textContent = "Request failed. Is the app running?";
+        statusEl.textContent = "Request failed.";
         statusEl.className = "err";
       });
   });
 
-  // All Periods button
   allBtn.addEventListener("click", () => {
     if (!selectedContact) return;
     statusEl.textContent = "Loading all periods…";
@@ -303,7 +427,8 @@
 
     const periods = data.periods || [];
     if (!periods.length) {
-      document.getElementById("all-body").innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#aaa">No CIS data found.</td></tr>';
+      document.getElementById("all-body").innerHTML =
+        '<tr><td colspan="6" style="text-align:center;padding:28px;color:#bbb">No CIS data found.</td></tr>';
       document.getElementById("all-foot").innerHTML = "";
       return;
     }
@@ -314,30 +439,29 @@
       grandCIS += p.total_cis;
       grandPaid += p.total_paid;
       return `<tr>
-        <td style="padding:10px 12px">${p.period_label}</td>
-        <td class="num" style="padding:10px 12px">${fmt(p.total_gross)}</td>
-        <td class="num" style="padding:10px 12px;color:#dc2626">${fmt(p.total_cis)}</td>
-        <td class="num" style="padding:10px 12px;color:#16a34a">${fmt(p.total_paid)}</td>
-        <td style="padding:10px 12px;text-align:center">${p.invoice_count}</td>
-        <td style="padding:10px 12px;white-space:nowrap">
-          <a href="/download?contact_id=${selectedContact.id}&month=${p.month}&year=${p.year}" class="btn-download" style="padding:6px 10px;font-size:0.78rem;display:inline-block;width:auto">⬇ PDF</a>
-          <a href="#" onclick="shareWhatsAppPeriod(event,'${selectedContact.id}',${p.month},${p.year},'${p.period_label}','${(data.contact?.name||'').replace(/'/g,'')}',${p.total_gross},${p.total_cis},${p.total_paid})" class="btn-download" style="padding:6px 10px;font-size:0.78rem;display:inline-block;width:auto;background:#25D366">📱</a>
+        <td>${p.period_label}</td>
+        <td class="num">${fmt(p.total_gross)}</td>
+        <td class="num" style="color:#D4463E">${fmt(p.total_cis)}</td>
+        <td class="num" style="color:#16a34a">${fmt(p.total_paid)}</td>
+        <td style="text-align:center">${p.invoice_count}</td>
+        <td style="white-space:nowrap">
+          <a href="/download?contact_id=${selectedContact.id}&month=${p.month}&year=${p.year}" class="pill-btn pill-pdf">⬇ PDF</a>
+          <a href="#" onclick="shareWhatsAppPeriod(event,'${selectedContact.id}',${p.month},${p.year},'${p.period_label}','${(data.contact?.name||'').replace(/'/g,'')}',${p.total_gross},${p.total_cis},${p.total_paid})" class="pill-btn pill-wa">WhatsApp</a>
         </td>
       </tr>`;
     }).join("");
 
-    document.getElementById("all-foot").innerHTML = `<tr style="background:#1a1a2e;color:white;font-weight:600">
-      <td style="padding:10px 12px">TOTAL (${periods.length} periods)</td>
-      <td class="num" style="padding:10px 12px">${fmt(grandGross)}</td>
-      <td class="num" style="padding:10px 12px">${fmt(grandCIS)}</td>
-      <td class="num" style="padding:10px 12px">${fmt(grandPaid)}</td>
+    document.getElementById("all-foot").innerHTML = `<tr>
+      <td>Total · ${periods.length} period${periods.length !== 1 ? 's' : ''}</td>
+      <td class="num">${fmt(grandGross)}</td>
+      <td class="num">${fmt(grandCIS)}</td>
+      <td class="num">${fmt(grandPaid)}</td>
       <td></td><td></td>
     </tr>`;
   }
 
   const monthNames = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
-
-  function fmt(n) { return "£" + (n || 0).toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function fmt(n) { return "£" + (n||0).toLocaleString("en-GB", {minimumFractionDigits:2,maximumFractionDigits:2}); }
 
   function renderResult(data, month, year) {
     const card = document.getElementById("result-card");
@@ -358,7 +482,7 @@
       document.getElementById("summary-grid").innerHTML = "";
       detailTable.style.display = "none";
       noData.style.display = "block";
-      noData.innerHTML = `No CIS payments found for this subcontractor in this period.`;
+      noData.innerHTML = "No CIS payments found for this subcontractor in this period.";
       return;
     }
 
@@ -369,34 +493,29 @@
       <div class="summary-box"><div class="lbl">Gross Paid (excl VAT)</div><div class="val">${fmt(t.gross)}</div></div>
       <div class="summary-box"><div class="lbl">Liable to Deduction</div><div class="val">${fmt(t.liable)}</div></div>
       <div class="summary-box deducted"><div class="lbl">CIS Deducted</div><div class="val">${fmt(t.cis_deduction)}</div></div>
-      <div class="summary-box net"><div class="lbl">Paid (A - B)</div><div class="val">${fmt(t.paid)}</div></div>
+      <div class="summary-box net"><div class="lbl">Net Paid (A − B)</div><div class="val">${fmt(t.paid)}</div></div>
     `;
 
-    const tbody = document.getElementById("table-body");
-    tbody.innerHTML = invoices.map(row => {
-      return `<tr>
-        <td>${row.payment_date}</td>
-        <td class="num">${fmt(row.gross)}</td>
-        <td class="num">${fmt(row.materials)}</td>
-        <td class="num">${fmt(row.non_cis)}</td>
-        <td class="num" style="color:#dc2626">${fmt(row.cis_deduction)}</td>
-        <td class="num" style="color:#16a34a">${fmt(row.paid)}</td>
-      </tr>`;
-    }).join("");
+    document.getElementById("table-body").innerHTML = invoices.map(row => `<tr>
+      <td>${row.payment_date}</td>
+      <td>${row.reference || '—'}</td>
+      <td class="num">${fmt(row.gross)}</td>
+      <td class="num">${fmt(row.materials)}</td>
+      <td class="num">${fmt(row.labour)}</td>
+      <td class="num" style="color:#D4463E">${fmt(row.cis_deduction)}</td>
+      <td class="num" style="color:#16a34a">${fmt(row.paid)}</td>
+    </tr>`).join("");
     detailTable.style.display = "table";
 
-    // Store data for WhatsApp sharing
     window._lastStatement = { data, month, year };
   }
 
   async function sharePDF(url, filename, name, period, gross, cis, paid) {
     try {
-      // Download the PDF
       const res = await fetch(url);
       const blob = await res.blob();
       const file = new File([blob], filename, { type: "application/pdf" });
 
-      // Try native share (works on mobile — sends actual file via WhatsApp)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -406,9 +525,9 @@
         return;
       }
 
-      // Fallback for desktop — open WhatsApp Web with download link
+      // Desktop fallback
       const downloadUrl = window.location.origin + url;
-      const msg = `Hi ${name},\n\nPlease find your CIS Payment Deduction Statement:\n\n📋 Period: ${period}\n💷 Gross Paid: ${fmt(gross)}\n🔻 CIS Deducted: ${fmt(cis)}\n✅ Net Paid: ${fmt(paid)}\n\nDownload your statement here:\n${downloadUrl}\n\nFrom Instruct Construction Group LTD`;
+      const msg = `Hi ${name},\n\nPlease find your CIS Payment Deduction Statement:\n\n📋 Period: ${period}\n💷 Gross: ${fmt(gross)}\n🔻 CIS Deducted: ${fmt(cis)}\n✅ Net Paid: ${fmt(paid)}\n\nDownload: ${downloadUrl}\n\nInstruct Construction Group LTD`;
       window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
     } catch (err) {
       if (err.name !== "AbortError") alert("Share failed: " + err.message);
