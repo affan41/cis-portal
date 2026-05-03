@@ -175,7 +175,10 @@
       <tbody id="table-body"></tbody>
     </table>
     <div id="no-data"></div>
-    <a href="#" class="btn-download" id="download-btn">⬇ Download PDF Statement</a>
+    <div style="display:flex;gap:10px">
+      <a href="#" class="btn-download" id="download-btn" style="flex:1">⬇ Download PDF</a>
+      <a href="#" class="btn-download" id="whatsapp-btn" style="flex:1;background:#25D366" onclick="shareWhatsApp(event)">📱 Send via WhatsApp</a>
+    </div>
   </div>
 
 </div>
@@ -316,7 +319,10 @@
         <td class="num" style="padding:10px 12px;color:#dc2626">${fmt(p.total_cis)}</td>
         <td class="num" style="padding:10px 12px;color:#16a34a">${fmt(p.total_paid)}</td>
         <td style="padding:10px 12px;text-align:center">${p.invoice_count}</td>
-        <td style="padding:10px 12px"><a href="/download?contact_id=${selectedContact.id}&month=${p.month}&year=${p.year}" class="btn-download" style="padding:6px 14px;font-size:0.8rem;display:inline-block;width:auto">⬇ PDF</a></td>
+        <td style="padding:10px 12px;white-space:nowrap">
+          <a href="/download?contact_id=${selectedContact.id}&month=${p.month}&year=${p.year}" class="btn-download" style="padding:6px 10px;font-size:0.78rem;display:inline-block;width:auto">⬇ PDF</a>
+          <a href="#" onclick="shareWhatsAppPeriod(event,'${selectedContact.id}',${p.month},${p.year},'${p.period_label}','${(data.contact?.name||'').replace(/'/g,'')}',${p.total_gross},${p.total_cis},${p.total_paid})" class="btn-download" style="padding:6px 10px;font-size:0.78rem;display:inline-block;width:auto;background:#25D366">📱</a>
+        </td>
       </tr>`;
     }).join("");
 
@@ -378,6 +384,32 @@
       </tr>`;
     }).join("");
     detailTable.style.display = "table";
+
+    // Store data for WhatsApp sharing
+    window._lastStatement = { data, month, year };
+  }
+
+  function shareWhatsApp(e) {
+    e.preventDefault();
+    const d = window._lastStatement;
+    if (!d) return;
+    const t = d.data.totals || {};
+    const name = d.data.contact?.name || selectedContact.name;
+    const period = d.data.period_label || "";
+    const downloadUrl = window.location.origin + document.getElementById("download-btn").getAttribute("href");
+
+    const msg = `Hi ${name},\n\nPlease find your CIS Payment Deduction Statement:\n\n📋 Period: ${period}\n💷 Gross Paid: ${fmt(t.gross)}\n🔻 CIS Deducted: ${fmt(t.cis_deduction)}\n✅ Net Paid: ${fmt(t.paid)}\n\nDownload your statement here:\n${downloadUrl}\n\nFrom Instruct Construction Group LTD`;
+
+    window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+  }
+
+  function shareWhatsAppPeriod(e, contactId, month, year, periodLabel, name, gross, cis, paid) {
+    e.preventDefault();
+    const downloadUrl = window.location.origin + `/download?contact_id=${contactId}&month=${month}&year=${year}`;
+
+    const msg = `Hi ${name},\n\nPlease find your CIS Payment Deduction Statement:\n\n📋 Period: ${periodLabel}\n💷 Gross Paid: ${fmt(gross)}\n🔻 CIS Deducted: ${fmt(cis)}\n✅ Net Paid: ${fmt(paid)}\n\nDownload your statement here:\n${downloadUrl}\n\nFrom Instruct Construction Group LTD`;
+
+    window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
   }
 </script>
 </body>
